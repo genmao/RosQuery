@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+from pymongo import MongoClient
+from PcdQuery_new import pcd_query
+from RosQuery.srv import *
+import rospy
+import numpy as np
+
+
+def find_nearby_points(req):
+    print("Received coordinate")
+    client = MongoClient()
+    db = client.block
+    lon = np.float64(req.b)
+    lat = np.float64(req.a)
+    query_size = 100
+    return pcd_query(lon, lat, db, query_size)
+
+
+def points_query_server():
+    # Listen
+    rospy.init_node('points_query_server', anonymous=True)
+    ser = rospy.Service('points_query', PCDQuery, find_nearby_points)
+    print "Query Ready. \n"
+    rospy.spin()
+
+if __name__ == '__main__':
+    try:
+        points_query_server()
+    except rospy.ROSInterruptException:
+        pass
